@@ -1,5 +1,5 @@
 /**
- * THE WORLD — front page for Sunday 22 November 2026.
+ * THE WORLD — front page for Monday 24 November 2026.
  *
  * Standalone: `node main.ts` writes /output/entry.png.
  * No dependencies, no network, no Date/Math.random: every run is byte-identical.
@@ -698,33 +698,33 @@ gradePlate(CAPITOL, 6, 1.12, 1.06, 0.4);
 
 /* ============================================================== 6. content = */
 
-const LEAD_HEAD = "COP31 ENDS WITHOUT A CLIMATE DEAL";
-const LEAD_DECK = "The European Union refused to sign a text that never named fossil fuels.";
+const LEAD_HEAD = "G20 CLOSES WITH A THIN DEAL ON DEBT";
+const LEAD_DECK = "A thin compromise on poor-country debt leaves hard cuts until June.";
 const LEAD_BODY =
-  "The gavel fell two days late and the summit closed with no agreed outcome. The final draft dropped every " +
-  "mention of coal, oil and gas, and the European Union refused to sign it. Work now moves to January.";
-const LEAD_CAP = "The closing session ran two days past the deadline.";
+  "The gavel came down at 4:40am. The communique binds 38 governments to a 90-day standstill and asks the fund to " +
+  "report on 84 billion dollars of claims by June. Aid groups called the deal thin, and no private creditor is bound to take a loss.";
+const LEAD_CAP = "The closing session ran into a second night.";
 const LEAD_CREDIT = "PHOTOGRAPH: THE WORLD";
 
 const SIDE_ITEMS: {
-  kicker: string; head: string; body: string; art: "capitol" | "ship" | "chart";
+  kicker: string; head: string; body: string; art: "capitol" | "ship" | "chart" | "none";
   artH: number; caption: string; credit: string;
 }[] = [
   {
-    kicker: "UNITED STATES",
-    head: "DEMOCRATS TAKE THE HOUSE",
-    body: "Widest House majority in three decades \u2014 a blow to President Trump.",
-    art: "capitol", artH: 176,
-    caption: "The Capitol at dusk.",
-    credit: "PHOTOGRAPH: THE WORLD",
+    kicker: "ENERGY",
+    head: "GRID OPERATORS AGREE A WINTER PLAN",
+    body: "Eight transmission operators will share reserve power across borders this winter, a deal they value at 2.4 billion dollars. Regulators must approve it before December.",
+    art: "none", artH: 0,
+    caption: "",
+    credit: "",
   },
   {
-    kicker: "GULF OF FINLAND",
-    head: "FIRE ABOARD A RUSSIAN SHIP",
-    body: "The Sparta II burned off Finland late on Sunday; the crew was taken off by tugs.",
-    art: "ship", artH: 150,
-    caption: "The Gulf of Finland, Sunday night.",
-    credit: "GRAPHIC: THE WORLD",
+    kicker: "EUROPE",
+    head: "BRUSSELS FINES THREE CEMENT GROUPS",
+    body: "The commission ordered 640 million euros in penalties for fixing prices in eight member states. The companies said they will appeal.",
+    art: "none", artH: 0,
+    caption: "",
+    credit: "",
   },
   {
     kicker: "DEMOGRAPHY",
@@ -950,7 +950,7 @@ function paperTex() {
 function drawMasthead() {
   rect(M, 54, CONTENT, 5, INK);
   const folio: TStyle = { size: SIZE.folio, color: INK_SOFT, weight: 0.13, tk: 2.6 };
-  drawText(M, 68, "VOL. CXIV  \u00b7  NO. 41,902", folio);
+  drawText(M, 68, "VOL. CXIV  \u00b7  NO. 41,903", folio);
   textRight(M + CONTENT, 68, "WORLD DESK  \u00b7  EVENING EDITION", folio);
 
   const titleSt: TStyle = { size: SIZE.title, color: INK, weight: 0.18, tk: 0.075 * SIZE.title };
@@ -964,9 +964,9 @@ function drawMasthead() {
   rect(M, 247, CONTENT, 1.4, INK, 0.5);
 
   const dateSt: TStyle = { size: SIZE.date, color: INK, weight: 0.145, tk: 3.1 };
-  const dw = textW("SUNDAY 22 NOVEMBER 2026", dateSt);
+  const dw = textW("MONDAY 24 NOVEMBER 2026", dateSt);
   const dateY = 256;
-  textCenter(M, dateY, CONTENT, "SUNDAY 22 NOVEMBER 2026", dateSt);
+  textCenter(M, dateY, CONTENT, "MONDAY 24 NOVEMBER 2026", dateSt);
   const rx = M + (CONTENT - dw) / 2;
   rect(M, dateY + SIZE.date * 0.72, Math.max(0, rx - M - 22), 2, HAIR);
   rect(rx + dw + 22, dateY + SIZE.date * 0.72, Math.max(0, M + CONTENT - (rx + dw + 22)), 2, HAIR);
@@ -984,11 +984,11 @@ function drawLead() {
   let y = LEAD_TOP;
 
   const kSt: TStyle = { size: SIZE.kicker, color: WHITE, weight: 0.155, tk: 2.8 };
-  const kw = textW("CLIMATE", kSt);
+  const kw = textW("G20", kSt);
   const kh = SIZE.kicker + 18;
   rect(x, y, kw + 36, kh, BRICK);
-  drawText(x + 18, y + 9, "CLIMATE", kSt);
-  drawText(x + kw + 56, y + 3, "THE SUMMIT COLLAPSES IN OVERTIME",
+  drawText(x + 18, y + 9, "G20", kSt);
+  drawText(x + kw + 56, y + 3, "THE HARD PART IS PUSHED TO JUNE",
     { size: 28, color: INK_SOFT, weight: 0.12, tk: 2.0 });
   rect(x + kw + 56, y + 3 + 28 + 10, w - kw - 56, 1.4, HAIR);
   y += kh + 16;
@@ -1007,7 +1007,7 @@ function drawLead() {
   for (const l of deckLines) { drawText(x, y, l, dSt); y += lh(dSt); }
   y += 16;
   rect(x, y, w, 2, HAIR);
-  drawText(x, y + 11, "BY OUR CLIMATE EDITOR  \u00b7  LATE EDITION  \u00b7  SUNDAY",
+  drawText(x, y + 11, "BY OUR DIPLOMATIC EDITOR  \u00b7  LATE EDITION  \u00b7  MONDAY",
     { size: SIZE.byline, color: INK_SOFT, weight: 0.12, tk: 2.1, serif: 9 });
   y += 11 + SIZE.byline + 20;
 
@@ -1115,14 +1115,20 @@ function drawSidebar() {
     } else if (item.art === "ship") {
       shipArt(x, y, w, item.artH);
       plateCredit(x, y, w, item.artH, item.credit);
-    } else {
+    } else if (item.art === "chart") {
       chartArt(x, y, w, item.artH);
     }
-    y += item.artH + 8;
-    const cSt: TStyle = { size: SIZE.credit, color: INK_SOFT, weight: 0.115, tk: 1.6, serif: 9 };
-    if (item.caption) drawText(x, y, item.caption, cSt);
-    else textRight(x + w, y, item.credit, { ...cSt, color: BRICK_DK, weight: 0.13 });
-    y += 28;
+    if (item.art === "none") {
+      // a brief with no picture: the measure runs on, so give the copy one line
+      // of air and then let it fill the block
+      y += 10;
+    } else {
+      y += item.artH + 8;
+      const cSt: TStyle = { size: SIZE.credit, color: INK_SOFT, weight: 0.115, tk: 1.6, serif: 9 };
+      if (item.caption) drawText(x, y, item.caption, cSt);
+      else textRight(x + w, y, item.credit, { ...cSt, color: BRICK_DK, weight: 0.13 });
+      y += 28;
+    }
 
     const p = fitBody(item.body, w - 11, top0 + block - y, [SIZE.sideBody, 27, 25, 23], 1, 0.96, 1.1);
     p.st.serif = 10;
