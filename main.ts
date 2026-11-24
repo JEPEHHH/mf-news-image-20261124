@@ -22,15 +22,13 @@
 
 import * as fs from "node:fs";
 import * as zlib from "node:zlib";
+import { BRIEFS43 } from "./briefs43.ts";
 
 /* ============================================================ 1. geometry == */
 
 const SS = 3;                                 // supersampling factor
 const W = 1520;
-const H = 2520;
-const DW = W * SS;
-const DH = H * SS;
-
+const H_EDITION = 2520;                       // masthead, lead and the day's four briefs
 const M = 56;                                 // page margin
 const CONTENT = W - 2 * M;                    // 1408
 
@@ -40,9 +38,24 @@ const LEAD_W = CONTENT - GUT - SIDE_W;        // 928
 const SIDE_X = M + LEAD_W + GUT;              // 1022
 
 const LEAD_TOP = 352;                         // first row of the lead package
-const LEAD_H = Math.round(H * 0.6);           // the lead is 60% of the page height
+const LEAD_H = Math.round(H_EDITION * 0.6);   // the lead is 60% of the edition's height
 const LEAD_BOT = LEAD_TOP + LEAD_H;           // 1864
 const TICK_TOP = LEAD_BOT + 24;               // 1888
+
+/* the two bands at the foot: the day's four briefs, then the expanded file */
+const BAND_H = 56;                            // black "IN BRIEF" slab
+const TICK_GRID_Y = TICK_TOP + BAND_H + 28;   // 1972
+const TICK_ROW_H = 238;                       // fixed, so the file below can set the page height
+const TICK_BLOCK_H = 2 * TICK_ROW_H + 16;     // 492
+const BRIEF_COLS = 3;
+const BRIEF_GUT = 38;
+const BRIEF_COL_W = Math.floor((CONTENT - (BRIEF_COLS - 1) * BRIEF_GUT) / BRIEF_COLS);  // 444
+const BRIEF_ROWS = Math.ceil(BRIEFS43.length / BRIEF_COLS);
+const BRIEF_ROW_H = 248;                      // one item plus its hairline
+const BRIEFS_TOP = TICK_GRID_Y + TICK_BLOCK_H + 60;   // 2524, clear of the slab above
+const H = BRIEFS_TOP + BRIEF_ROWS * BRIEF_ROW_H + M;  // the page grows to hold the file
+const DW = W * SS;
+const DH = H * SS;
 
 /* =============================================================== 2. colour == */
 
@@ -1140,16 +1153,16 @@ function drawSidebar() {
 }
 
 function drawTicker() {
-  const bandH = SIZE.kicker + 24;
+  const bandH = BAND_H;
   rect(M, TICK_TOP, CONTENT, bandH, INK);
   rect(M, TICK_TOP + bandH - 3, CONTENT, 3, BRICK);
   drawText(M + 22, TICK_TOP + 12, "IN BRIEF", { size: SIZE.kicker, color: WHITE, weight: 0.16, tk: 3 });
   textRight(M + CONTENT - 22, TICK_TOP + 13, "THE DAY IN BRIEF  \u00b7  EDITED BY THE WORLD DESK",
     { size: 25, color: WHITE, weight: 0.12, tk: 2.2, alpha: 0.84 });
 
-  const gridY = TICK_TOP + bandH + 28;
+  const gridY = TICK_GRID_Y;
   const cw = (CONTENT - 74) / 2;
-  const rh = (H - M - gridY - 16) / 2;
+  const rh = TICK_ROW_H;
   rect(M + cw + 37, gridY, 1.8, rh * 2 + 16, RULE);
   rect(M, gridY + rh + 8, CONTENT, 1.8, RULE);
 
@@ -1167,7 +1180,90 @@ function drawTicker() {
     report("brief." + item.reg, cy, cy + SIZE.briefReg + 22 + p.lines.length * p.lh, cy + rh,
       p.size.toFixed(0) + "px " + p.lines.length + "L");
   });
-  report("briefs", TICK_TOP, TICK_TOP + bandH, H - M, "band");
+  report("briefs", TICK_TOP, TICK_TOP + bandH, TICK_GRID_Y + TICK_BLOCK_H, "band");
+}
+
+/* the expanded file: every item of BRIEFS43 on a three column grid, hairline rule
+ * above each one, section word set ahead of the headline, body copy in the measure */
+
+const BRIEF_STATS = { drawn: 0, widest: 0, tightest: 99, headSize: 0 };
+
+function drawBriefs43() {
+  const top = BRIEFS_TOP;
+  const slabH = 48;
+  const slabY = top - slabH - 34;             // its foot clears the first hairline
+  rect(M, slabY, CONTENT, slabH, INK);
+  rect(M, slabY + slabH - 3, CONTENT, 3, BRICK);
+  drawText(M + 22, slabY + 11, "IN BRIEF",
+    { size: 26, color: WHITE, weight: 0.16, tk: 3 });
+  textRight(M + CONTENT - 22, slabY + 12,
+    "FORTY-THREE MORE FROM THE WORLD DESK  \u00b7  MONDAY",
+    { size: 21, color: WHITE, weight: 0.12, tk: 2.0, alpha: 0.84 });
+
+  const colW = BRIEF_COL_W;
+  for (let c = 1; c < BRIEF_COLS; c++)
+    rect(M + c * (colW + BRIEF_GUT) - BRIEF_GUT / 2, top, 1.6, BRIEF_ROWS * BRIEF_ROW_H - 18, RULE);
+
+  const sSt: TStyle = { size: 19, color: BRICK_DK, weight: 0.15, tk: 2.4 };
+  const KICK = 19, KICK_GAP = 16, HEAD_GAP = 7, AIR = 36;
+
+  const headStyle = (s: number): TStyle =>
+    ({ size: s, color: INK, weight: 0.175, tk: 1.43, lead: 0.2 });
+  const bodyStyle = (s: number): TStyle =>
+    ({ size: s, color: INK, weight: 0.108, tk: 0.045 * s, serif: 9 });
+
+  // one setting for the whole file: every headline is measured before any is set,
+  // so the grid reads evenly instead of shrinking item by item
+  let headSize = 23;
+  for (const s of [26, 25, 24, 23]) {
+    headSize = s;
+    if (BRIEFS43.every((b) => wrapText(b.head, colW, headStyle(s)).length <= 2)) break;
+  }
+  const hStep = headSize * 1.16;
+  const heads = BRIEFS43.map((b) => wrapText(b.head, colW, headStyle(headSize)));
+
+  let bodySize = 17;
+  for (const s of [21, 20, 19, 18, 17]) {
+    bodySize = s;
+    const fits = BRIEFS43.every((b, i) =>
+      KICK + KICK_GAP + heads[i].length * hStep + HEAD_GAP +
+      wrapText(b.body, colW - 2, bodyStyle(s)).length * s * 1.32 <= BRIEF_ROW_H - AIR);
+    if (fits) break;
+  }
+  const bSt = bodyStyle(bodySize);
+  const bStep = bodySize * 1.32;
+  BRIEF_STATS.tightest = bodySize;
+  BRIEF_STATS.headSize = headSize;
+
+  BRIEFS43.forEach((item, i) => {
+    const col = i % BRIEF_COLS;
+    const row = Math.floor(i / BRIEF_COLS);
+    const x = M + col * (colW + BRIEF_GUT);
+    const y = top + row * BRIEF_ROW_H;
+    const limit = y + BRIEF_ROW_H - AIR;
+
+    rect(x, y - 27, colW, 1.4, HAIR);
+    drawText(x, y, item.section, sSt);
+    const sw = textW(item.section, sSt);
+    rect(x + sw + 12, y - 8, Math.max(0, colW - sw - 12), 1.1, HAIR);
+
+    const head = { st: headStyle(headSize), lines: heads[i] };
+    const lines = wrapText(item.body, colW - 2, bSt);
+
+    let yy = y + KICK + KICK_GAP;
+    for (const l of head.lines) { drawText(x, yy, l, head.st); yy += hStep; }
+    drawPara(x, yy + HEAD_GAP, lines, bSt, bStep, 0, 0);
+    const bottom = yy + HEAD_GAP + (lines.length - 1) * bStep + bodySize * 0.24;
+
+    let widest = 0;
+    for (const l of lines) { const w = textW(l, bSt); if (w > widest) widest = w; }
+    for (const l of head.lines) { const w = textW(l, head.st); if (w > widest) widest = w; }
+    if (widest > BRIEF_STATS.widest) BRIEF_STATS.widest = widest;
+    BRIEF_STATS.drawn++;
+    report("brief." + (i + 1), y - 27, bottom, limit, bodySize + "px " + lines.length + "L");
+  });
+
+  report("file43", top - slabH - 34, top + BRIEF_ROWS * BRIEF_ROW_H - AIR, H - M, BRIEF_COLS + "cols");
 }
 
 /* ==================================================== 10. down filter + press = */
@@ -1317,6 +1413,7 @@ function build() {
   drawLead();
   drawSidebar();
   drawTicker();
+  drawBriefs43();
   downscale();
   drawGrain();
   return encodePNG(W, H, out);
@@ -1335,6 +1432,7 @@ function main() {
   const au = auditType();
   console.log(`entry.png ${W}x${H} ${(png.length / 1024).toFixed(0)} KiB  lead=${((LEAD_H / H) * 100).toFixed(1)}% of page height`);
   console.log(`type: ${au.used} glyphs used` + (au.missing.length ? `, MISSING "${au.missing.join("")}"` : ", all present"));
+  console.log(`file43: ${BRIEF_STATS.drawn}/${BRIEFS43.length} items drawn, widest line ${BRIEF_STATS.widest.toFixed(1)}px of ${BRIEF_COL_W}px column, head ${BRIEF_STATS.headSize}px body ${BRIEF_STATS.tightest}px`);
   console.log(bad.length ? `LAYOUT OVERFLOW x${bad.length}` : "layout ok");
 }
 
