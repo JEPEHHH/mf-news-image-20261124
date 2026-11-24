@@ -1,12 +1,84 @@
 /**
- * THE WORLD — expanded "IN BRIEF" file, Monday 24 November 2026.
+ * THE WORLD — the copy desk, Monday 24 November 2026.
  *
- * Forty-three short items for the lower half of the page: one section word, a
- * headline of forty-two characters or fewer, and one or two sentences carrying
- * a single concrete figure. Nothing here repeats the three sidebar stories
- * (ENERGY winter reserve plan, EUROPE cement fines, DEMOGRAPHY faith survey) or
- * the four lead briefs in the band above.
+ * Every word and every figure that reaches the page comes from this module: the
+ * lead package, the three sidebar stories, the four briefs in the black band, and
+ * the forty-three item expanded file at the foot. Nothing here knows about
+ * pixels — no sizes, no coordinates, no colours — so the edition can be re-set at
+ * another page measure without touching a word.
+ *
+ * The rules the copy keeps to:
+ *   lead       headline, deck, one story, a caption and its credit
+ *   sidebar    kicker, headline, body, and which artwork (if any) sits under it
+ *   ticker     region, one sentence, four of them in a two by two grid
+ *   briefs43   one section word, a headline of forty-two characters or fewer, and
+ *              one or two sentences carrying a single concrete figure. Nothing
+ *              here repeats the sidebar stories or the four briefs above it.
  */
+
+/* =============================================================== the lead == */
+
+export const LEAD_HEAD = "G20 CLOSES WITH A THIN DEAL ON DEBT";
+export const LEAD_DECK = "A thin compromise on poor-country debt leaves hard cuts until June.";
+
+export const LEAD_BODY =
+  "The gavel came down at 4:40am. The communique binds 38 governments to a 90-day standstill and asks the fund to " +
+  "report on 84 billion dollars of claims by June. Aid groups called the deal thin, and no private creditor is bound to take a loss.";
+
+export const LEAD_CAP = "The closing session ran into a second night.";
+export const LEAD_CREDIT = "PHOTOGRAPH: THE WORLD";
+
+/* ============================================================ the sidebar == */
+
+export type SideItem = {
+  kicker: string;
+  head: string;
+  body: string;
+  art: "capitol" | "ship" | "chart" | "none";
+  artH: number;
+  caption: string;
+  credit: string;
+};
+
+export const SIDE_ITEMS: SideItem[] = [
+  {
+    kicker: "ENERGY",
+    head: "GRID OPERATORS AGREE A WINTER PLAN",
+    body: "Eight transmission operators will share reserve power across borders this winter, a deal they value at 2.4 billion dollars. Regulators must approve it before December.",
+    art: "none", artH: 0,
+    caption: "",
+    credit: "",
+  },
+  {
+    kicker: "EUROPE",
+    head: "BRUSSELS FINES THREE CEMENT GROUPS",
+    body: "The commission ordered 640 million euros in penalties for fixing prices in eight member states. The companies said they will appeal.",
+    art: "none", artH: 0,
+    caption: "",
+    credit: "",
+  },
+  {
+    kicker: "DEMOGRAPHY",
+    head: "ISLAM TO PASS CHRISTIANITY",
+    body: "A report projects Islam as the largest faith in the world by 2035.",
+    art: "chart", artH: 198,
+    caption: "",
+    credit: "PROJECTION: THE WORLD DESK",
+  },
+];
+
+/* ============================================================= the ticker == */
+
+export type TickerItem = { reg: string; txt: string };
+
+export const TICKER: TickerItem[] = [
+  { reg: "UKRAINE", txt: "An overnight attack on the Kyiv region left two dead and four wounded, local officials said. Air defences stayed busy until dawn." },
+  { reg: "WEST BANK", txt: "Settlers attacked Palestinian villages across the occupied West Bank late on Sunday, residents and medics reported." },
+  { reg: "HAITI", txt: "Two Salvadoran soldiers on a security mission were killed and two were wounded in the country, the army said." },
+  { reg: "CHINA", txt: "Beijing set 2030 targets for elderly care and for childcare places across the country, as the population ages." },
+];
+
+/* ======================================================== the expanded file == */
 
 export type Brief43 = { section: string; head: string; body: string };
 
